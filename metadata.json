@@ -1,0 +1,7 @@
+{
+  "name": "CPanel Admin - Gestor de Ventas",
+  "description": "Panel de administración moderno para gestión de pedidos, clientes y métricas estratégicas de conversión.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
