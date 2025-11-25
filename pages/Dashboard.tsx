@@ -32,30 +32,30 @@ import { SALES_DATA, MOCK_ORDERS, MOCK_PRODUCTS, COMPANIES } from '../constants'
 import { Status } from '../types';
 import { useCompany } from '../CompanyContext';
 
-const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#6366f1'];
+const COLORS = ['#18181b', '#52525b', '#a1a1aa', '#d4d4d8', '#f4f4f5']; // Grayscale palette
 
-const StatCard = ({ title, value, trend, trendValue, icon: Icon, color }: any) => (
-  <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-    <div className="flex items-center justify-between mb-4">
-      <div className={`p-3 rounded-lg ${color}`}>
-        <Icon size={22} className="text-white" />
-      </div>
-      <div className={`flex items-center gap-1 text-sm font-medium ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-        {trend === 'up' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+const StatCard = ({ title, value, trend, trendValue, icon: Icon }: any) => (
+  <div className="bg-white p-4 rounded-lg border border-zinc-200 shadow-sm hover:shadow-medusa transition-shadow">
+    <div className="flex items-center justify-between mb-3">
+      <span className="text-zinc-500 text-xs font-medium uppercase tracking-wide">{title}</span>
+      <Icon size={16} className="text-zinc-400" />
+    </div>
+    <div className="flex items-end justify-between">
+       <p className="text-2xl font-semibold text-zinc-900">{value}</p>
+       <div className={`flex items-center gap-0.5 text-xs font-medium ${trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
+        {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
         {trendValue}
       </div>
     </div>
-    <h3 className="text-gray-500 text-sm font-medium">{title}</h3>
-    <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
   </div>
 );
 
 const StatusIcon = ({ status }: { status: Status }) => {
   switch (status) {
-    case Status.Completed: return <CheckCircle size={16} className="text-emerald-500" />;
-    case Status.Pending: return <Clock size={16} className="text-amber-500" />;
-    case Status.Cancelled: return <XCircle size={16} className="text-red-500" />;
-    default: return <AlertCircle size={16} className="text-gray-400" />;
+    case Status.Completed: return <div className="w-2 h-2 rounded-full bg-emerald-500" />;
+    case Status.Pending: return <div className="w-2 h-2 rounded-full bg-amber-500" />;
+    case Status.Cancelled: return <div className="w-2 h-2 rounded-full bg-red-500" />;
+    default: return <div className="w-2 h-2 rounded-full bg-zinc-300" />;
   }
 };
 
@@ -63,7 +63,7 @@ const CompanyBadge = ({ companyId }: { companyId: string }) => {
   const company = COMPANIES.find(c => c.id === companyId);
   if (!company) return null;
   return (
-    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded text-white ${company.color} opacity-80`}>
+    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-zinc-200 text-zinc-600 bg-zinc-50">
       {company.logo}
     </span>
   );
@@ -88,11 +88,8 @@ export const Dashboard: React.FC = () => {
     const stats: Record<string, number> = {};
     
     filteredOrders.forEach(order => {
-      // Nota: Si el producto no está en filteredProducts (porque filtramos mal), lo ponemos en Otros
-      // Pero como filtramos ambos por companyId, debería coincidir.
       const productInfo = filteredProducts.find(p => p.name === order.products) || MOCK_PRODUCTS.find(p => p.name === order.products);
       const category = productInfo ? productInfo.category : 'Otros';
-      
       stats[category] = (stats[category] || 0) + 1;
     });
 
@@ -103,7 +100,7 @@ export const Dashboard: React.FC = () => {
 
   // 2. Calcular Totales Dinámicos
   const totalSalesValue = useMemo(() => filteredOrders.reduce((acc, curr) => acc + curr.amount, 0), [filteredOrders]);
-  const newCustomersCount = useMemo(() => selectedCompanyId === 'all' ? 342 : Math.floor(342 / 3), [selectedCompanyId]); // Mock logic
+  const newCustomersCount = useMemo(() => selectedCompanyId === 'all' ? 342 : Math.floor(342 / 3), [selectedCompanyId]);
 
   // 3. Obtener los últimos 5 pedidos filtrados
   const recentOrders = useMemo(() => {
@@ -111,131 +108,129 @@ export const Dashboard: React.FC = () => {
   }, [filteredOrders]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Panel de Métricas</h2>
-          <p className="text-gray-500 mt-1">
-            {selectedCompanyId === 'all' ? 'Monitoreo consolidado de todas las empresas.' : 'Monitoreo estratégico de la unidad seleccionada.'}
+          <h2 className="text-xl font-semibold text-zinc-900">Overview</h2>
+          <p className="text-xs text-zinc-500 mt-1">
+            {selectedCompanyId === 'all' ? 'Consolidated metrics across all stores.' : 'Performance metrics for selected unit.'}
           </p>
         </div>
-        <div className="flex gap-3">
-           <select className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block px-4 py-2">
-             <option>Últimos 7 días</option>
-             <option>Últimos 30 días</option>
-             <option>Este Año</option>
+        <div className="flex gap-2">
+           <select className="bg-white border border-zinc-200 text-zinc-700 text-xs rounded-md focus:ring-zinc-900 focus:border-zinc-900 block px-3 py-2 shadow-sm">
+             <option>Last 7 days</option>
+             <option>Last 30 days</option>
+             <option>This Year</option>
            </select>
-           <button className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
-             Exportar Reporte
+           <button className="bg-white hover:bg-zinc-50 border border-zinc-200 text-zinc-900 px-3 py-2 rounded-md text-xs font-medium transition-colors shadow-sm">
+             Export Report
            </button>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Ventas Totales" 
+          title="Total Sales" 
           value={`$${totalSalesValue.toLocaleString()}`} 
           trend="up" 
           trendValue="+12.5%" 
           icon={DollarSign} 
-          color="bg-blue-500" 
         />
         <StatCard 
-          title="Pedidos Totales" 
+          title="Total Orders" 
           value={filteredOrders.length.toString()} 
           trend="up" 
           trendValue="+8.2%" 
           icon={ShoppingBag} 
-          color="bg-purple-500" 
         />
         <StatCard 
-          title="Nuevos Clientes" 
+          title="New Customers" 
           value={newCustomersCount.toString()} 
           trend="down" 
           trendValue="-2.4%" 
           icon={Users} 
-          color="bg-orange-500" 
         />
         <StatCard 
-          title="Tasa Conversión" 
+          title="Conversion Rate" 
           value="3.2%" 
           trend="up" 
           trendValue="+1.1%" 
           icon={Activity} 
-          color="bg-green-500" 
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart: Sales Performance */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+        <div className="lg:col-span-2 bg-white p-6 rounded-lg border border-zinc-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-gray-900">Rendimiento de Ventas</h3>
-            <button className="text-gray-400 hover:text-gray-600">
-              <MoreHorizontal size={20} />
+            <h3 className="text-sm font-semibold text-zinc-900">Sales Performance</h3>
+            <button className="text-zinc-400 hover:text-zinc-600">
+              <MoreHorizontal size={16} />
             </button>
           </div>
-          <div className="h-80">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={SALES_DATA}>
                 <defs>
                   <linearGradient id="colorVentas" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#18181b" stopOpacity={0.1}/>
+                    <stop offset="95%" stopColor="#18181b" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `$${value}`} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#a1a1aa', fontSize: 11}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#a1a1aa', fontSize: 11}} tickFormatter={(value) => `$${value}`} />
                 <Tooltip 
-                  contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}}
-                  formatter={(value: number) => [`$${value}`, 'Monto']}
+                  contentStyle={{borderRadius: '6px', border: '1px solid #e4e4e7', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', fontSize: '12px'}}
+                  formatter={(value: number) => [`$${value}`, 'Amount']}
                 />
-                <Area type="monotone" dataKey="ventas" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorVentas)" />
+                <Area type="monotone" dataKey="ventas" stroke="#18181b" strokeWidth={2} fillOpacity={1} fill="url(#colorVentas)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* New Chart: Product Categories */}
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col">
-          <h3 className="text-lg font-bold text-gray-900 mb-2">Categorías Vendidas</h3>
-          <p className="text-sm text-gray-500 mb-6">Distribución por unidades vendidas</p>
+        <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm flex flex-col">
+          <h3 className="text-sm font-semibold text-zinc-900 mb-1">Sales by Category</h3>
+          <p className="text-xs text-zinc-500 mb-6">Distribution by units sold</p>
           
-          <div className="flex-1 min-h-[250px] relative">
+          <div className="flex-1 min-h-[200px] relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
+                  innerRadius={55}
+                  outerRadius={75}
+                  paddingAngle={2}
                   dataKey="value"
+                  stroke="none"
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
                 <Tooltip 
-                   formatter={(value: number) => [`${value} Unds`, 'Cantidad']}
-                   contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}}
+                   formatter={(value: number) => [`${value} Units`, 'Qty']}
+                   contentStyle={{borderRadius: '6px', border: '1px solid #e4e4e7', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', fontSize: '12px'}}
                 />
                 <Legend 
                   verticalAlign="bottom" 
                   height={36} 
                   iconType="circle"
-                  formatter={(value) => <span className="text-xs text-gray-600 ml-1">{value}</span>}
+                  iconSize={8}
+                  formatter={(value) => <span className="text-[10px] text-zinc-600 ml-1">{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
             {/* Center Label */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none pb-8">
                <div className="text-center">
-                 <span className="block text-2xl font-bold text-gray-900">{filteredOrders.length}</span>
-                 <span className="text-xs text-gray-500 uppercase">Pedidos</span>
+                 <span className="block text-xl font-bold text-zinc-900">{filteredOrders.length}</span>
+                 <span className="text-[10px] text-zinc-500 uppercase tracking-wide">Orders</span>
                </div>
             </div>
           </div>
@@ -243,57 +238,54 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* Recent Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-           <h3 className="text-lg font-bold text-gray-900">Últimos Pedidos Realizados</h3>
-           <Link to="/orders" className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1 hover:underline">
-             Ver todos <ArrowRight size={16} />
+      <div className="bg-white rounded-lg border border-zinc-200 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-zinc-100 flex items-center justify-between">
+           <h3 className="text-sm font-semibold text-zinc-900">Recent Orders</h3>
+           <Link to="/orders" className="text-xs font-medium text-zinc-500 hover:text-zinc-900 flex items-center gap-1 transition-colors">
+             View all <ArrowRight size={12} />
            </Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50 text-gray-500 font-medium uppercase text-xs">
+          <table className="w-full text-left">
+            <thead className="bg-zinc-50/50 border-b border-zinc-100">
               <tr>
-                <th className="px-6 py-3">ID Pedido</th>
-                {selectedCompanyId === 'all' && <th className="px-6 py-3">Empresa</th>}
-                <th className="px-6 py-3">Cliente</th>
-                <th className="px-6 py-3">Producto Principal</th>
-                <th className="px-6 py-3">Fecha</th>
-                <th className="px-6 py-3">Monto</th>
-                <th className="px-6 py-3">Estado</th>
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Order ID</th>
+                {selectedCompanyId === 'all' && <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Store</th>}
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Customer</th>
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Product</th>
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Date</th>
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-zinc-100">
               {recentOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-gray-900">
+                <tr key={order.id} className="hover:bg-zinc-50/50 transition-colors">
+                  <td className="px-6 py-3 text-xs font-medium text-zinc-900">
                     {order.id}
                   </td>
                   {selectedCompanyId === 'all' && (
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-3">
                       <CompanyBadge companyId={order.companyId} />
                     </td>
                   )}
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center text-xs font-bold">
+                      <div className="w-5 h-5 rounded-full bg-zinc-100 text-zinc-600 flex items-center justify-center text-[10px] font-bold">
                         {order.customerName.charAt(0)}
                       </div>
-                      <span className="text-gray-700">{order.customerName}</span>
+                      <span className="text-xs text-zinc-700">{order.customerName}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-gray-600 max-w-xs truncate" title={order.products}>
+                  <td className="px-6 py-3 text-xs text-zinc-600 max-w-xs truncate" title={order.products}>
                     {order.products}
                   </td>
-                  <td className="px-6 py-4 text-gray-500">{order.date}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">${order.amount.toFixed(2)}</td>
-                  <td className="px-6 py-4">
-                     <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
-                       ${order.status === Status.Completed ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
-                         order.status === Status.Pending ? 'bg-amber-50 text-amber-700 border-amber-100' : 
-                         'bg-red-50 text-red-700 border-red-100'}`}>
+                  <td className="px-6 py-3 text-xs text-zinc-500">{order.date}</td>
+                  <td className="px-6 py-3 text-xs font-medium text-zinc-900">${order.amount.toFixed(2)}</td>
+                  <td className="px-6 py-3">
+                     <div className="flex items-center gap-2">
                         <StatusIcon status={order.status} />
-                        {order.status}
+                        <span className="text-xs text-zinc-600">{order.status}</span>
                      </div>
                   </td>
                 </tr>

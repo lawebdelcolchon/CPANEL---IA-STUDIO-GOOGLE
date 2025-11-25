@@ -14,13 +14,23 @@
               sans: ['Inter', 'sans-serif'],
             },
             colors: {
+              // Medusa Style Palette (Zinc based)
               primary: {
-                50: '#eff6ff',
-                100: '#dbeafe',
-                500: '#3b82f6',
-                600: '#2563eb',
-                700: '#1d4ed8',
+                50: '#fafafa',
+                100: '#f4f4f5', // zinc-100
+                200: '#e4e4e7', // zinc-200
+                300: '#d4d4d8',
+                400: '#a1a1aa',
+                500: '#71717a',
+                600: '#18181b', // zinc-900 (Main Action Color)
+                700: '#09090b', // zinc-950
+                800: '#000000',
+                900: '#000000',
               }
+            },
+            boxShadow: {
+              'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              'medusa': '0 0 0 1px rgba(0,0,0,0.05), 0 2px 8px rgba(0,0,0,0.05)',
             }
           }
         }
@@ -42,7 +52,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-50 text-slate-800 antialiased">
+  <body class="bg-[#F9FAFB] text-zinc-900 antialiased">
     <div id="root"></div>
   </body>
 </html>
